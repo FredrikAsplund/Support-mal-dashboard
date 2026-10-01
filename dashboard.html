@@ -31,8 +31,9 @@
   .overall .bar-wrap { flex: 1; }
   .overall .bar-label { font-size: 1.9vh; color: var(--muted); margin-bottom: 0.8vh; }
   .bar { height: 1.8vh; border-radius: 999px; background: var(--idle); overflow: hidden; display: flex; }
-  .bar .done { background: var(--lime); }
-  .bar .doing { background: var(--amber); }
+  .fill { height: 100%; border-radius: 999px; transition: width .6s ease, background-color .6s ease; background: var(--idle); }
+  .fill.doing { background: var(--amber); }
+  .fill.done { background: var(--lime); }
   .legend { display: flex; gap: 1.4vw; margin-top: 0.9vh; font-size: 1.7vh; color: var(--muted); }
   .legend i { display: inline-block; width: 1.2vh; height: 1.2vh; border-radius: 50%; margin-right: 0.5vw; }
 
@@ -49,8 +50,6 @@
   .count { color: var(--muted); white-space: nowrap; font-size: 0.9em; }
   .count strong { color: var(--text); }
   .goal-bar { height: 0.7vh; border-radius: 999px; background: var(--idle); margin-bottom: calc(1.2vh * var(--s)); overflow: hidden; display: flex; }
-  .goal-bar .done { background: var(--lime); }
-  .goal-bar .doing { background: var(--amber); }
   ul { list-style: none; display: flex; flex-direction: column; gap: calc(0.7vh * var(--s)); }
   li { display: flex; gap: 0.8vw; align-items: flex-start; line-height: 1.25; padding: calc(0.7vh * var(--s)) calc(0.8vw * var(--s)); border-radius: 0.9vh; background: rgba(84,87,98,.35); color: #c9cbd2; }
   li .ico { flex: none; width: 1.3em; height: 1.3em; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; font-weight: 800; background: var(--idle); color: #d8dae0; margin-top: 0.05em; }
@@ -74,11 +73,11 @@
     <div class="pct" id="pct">–</div>
     <div class="bar-wrap">
       <div class="bar-label">Delmål klara totalt</div>
-      <div class="bar"><div class="done" id="barDone"></div><div class="doing" id="barDoing"></div></div>
+      <div class="bar"><div class="fill" id="barFill"></div></div>
       <div class="legend">
         <span><i style="background:var(--idle)"></i>Ej påbörjat</span>
         <span><i style="background:var(--amber)"></i>Pågår</span>
-        <span><i style="background:var(--lime)"></i>Klart</span>
+        <span><i style="background:var(--lime)"></i>Klart (från 80 %)</span>
       </div>
     </div>
   </div>
@@ -131,9 +130,13 @@ function group(data) {
   });
   return order.map(function (n) { return { name: n, tag: goals[n].tag, subs: goals[n].subs }; });
 }
-function bars(done, doing, total) {
-  var d = total ? done / total * 100 : 0, p = total ? doing / total * 100 : 0;
-  return [d, p];
+// En stapel med en färg: grå = ej påbörjat, orange = pågår, grön från 80 % klart.
+function barState(done, doing, total) {
+  var pct = total ? done / total * 100 : 0;
+  var started = done > 0 || doing > 0;
+  var cls = pct >= 80 ? "done" : started ? "doing" : "idle";
+  var w = pct > 0 ? pct : started ? 4 : 0; // liten orange start när inget är klart men något pågår
+  return { w: w, cls: cls };
 }
 var ICON = { done: "✓", doing: "▶", idle: "○" };
 
@@ -143,19 +146,19 @@ function render(data) {
     var gd = 0, gp = 0;
     g.subs.forEach(function (s) { if (s.cls === "done") gd++; else if (s.cls === "doing") gp++; });
     total += g.subs.length; done += gd; doing += gp;
-    var b = bars(gd, gp, g.subs.length);
+    var b = barState(gd, gp, g.subs.length);
     return '<section class="goal"><div class="goal-head"><div class="goal-title">' + esc(g.name) +
       (g.tag ? '<span class="tag">' + esc(g.tag) + '</span>' : '') +
       '</div><div class="count"><strong>' + gd + '/' + g.subs.length + '</strong> klara</div></div>' +
-      '<div class="goal-bar"><div class="done" style="width:' + b[0] + '%"></div><div class="doing" style="width:' + b[1] + '%"></div></div><ul>' +
+      '<div class="goal-bar"><div class="fill ' + b.cls + '" style="width:' + b.w + '%"></div></div><ul>' +
       g.subs.map(function (s) { return '<li class="' + s.cls + '"><span class="ico">' + ICON[s.cls] + '</span><span>' + esc(s.text) + '</span></li>'; }).join("") +
       '</ul></section>';
   }).join("");
   document.getElementById("grid").innerHTML = html;
-  var b = bars(done, doing, total);
+  var b = barState(done, doing, total);
   document.getElementById("pct").textContent = (total ? Math.round(done / total * 100) : 0) + "%";
-  document.getElementById("barDone").style.width = b[0] + "%";
-  document.getElementById("barDoing").style.width = b[1] + "%";
+  var fill = document.getElementById("barFill");
+  fill.className = "fill " + b.cls; fill.style.width = b.w + "%";
   fit(goals.length);
 }
 
