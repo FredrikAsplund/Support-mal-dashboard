@@ -3,164 +3,200 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="refresh" content="60">
-<title>Teamets Mal Hosten 2025</title>
+<title>Teamets mål hösten 2026</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
   :root {
-    --bg: #0f1117; --card: #1a1d27; --border: #2a2d3a; --text: #e8eaf0;
-    --muted: #6b7080; --not-started: #3a3d4a; --not-started-text: #9a9db0;
-    --in-progress: #f59e0b; --in-progress-bg: rgba(245,158,11,0.12);
-    --done: #22c55e; --done-bg: rgba(34,197,94,0.12); --accent: #6366f1;
+    --bg: #26272B; --card: #313131; --border: #44464d; --text: #ffffff; --muted: #a3a5ad;
+    --lime: #BEE034; --amber: #FEB000; --pink: #FFA6EA; --blue: #A6EFFF; --idle: #545762;
+    --s: 1; /* skalfaktor, justeras av skriptet så att allt ryms utan scroll */
+    --cols: 2;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; padding: 2rem; }
-  header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem; }
-  header h1 { font-size: 1.8rem; font-weight: 900; letter-spacing: -0.5px; }
-  header h1 span { color: var(--accent); }
-  .meta { font-size: 0.85rem; color: var(--muted); text-align: right; }
-  .meta strong { color: var(--text); }
-  .progress-overview { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem 2rem; margin-bottom: 2.5rem; display: flex; align-items: center; gap: 2rem; }
-  .progress-overview .label { font-size: 0.9rem; color: var(--muted); margin-bottom: 0.4rem; }
-  .progress-overview .big-number { font-size: 2.8rem; font-weight: 900; color: var(--accent); line-height: 1; }
-  .progress-bar-wrap { flex: 1; }
-  .progress-bar-bg { background: var(--not-started); border-radius: 999px; height: 12px; overflow: hidden; margin-top: 0.5rem; }
-  .progress-bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent), #818cf8); transition: width 0.8s ease; }
-  .legend { display: flex; gap: 1.5rem; flex-wrap: wrap; }
-  .legend-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; color: var(--muted); }
-  .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 1.5rem; }
-  .goal-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; transition: border-color 0.2s; }
-  .goal-card:hover { border-color: var(--accent); }
-  .goal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.2rem; }
-  .goal-title { font-size: 1.1rem; font-weight: 700; }
-  .goal-title .tag { display: inline-block; font-size: 0.72rem; font-weight: 600; background: rgba(99,102,241,0.15); color: var(--accent); border-radius: 6px; padding: 2px 8px; margin-left: 8px; vertical-align: middle; }
-  .goal-progress-text { font-size: 0.85rem; color: var(--muted); white-space: nowrap; margin-left: 1rem; }
-  .goal-progress-text strong { color: var(--text); font-size: 1rem; }
-  .subgoal-list { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
-  .subgoal { display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem 1rem; border-radius: 10px; font-size: 0.88rem; border: 1px solid transparent; }
-  .subgoal.not-started { background: rgba(58,61,74,0.4); color: var(--not-started-text); }
-  .subgoal.in-progress { background: var(--in-progress-bg); border-color: rgba(245,158,11,0.25); color: var(--text); }
-  .subgoal.done { background: var(--done-bg); border-color: rgba(34,197,94,0.25); color: var(--text); }
-  .status-icon { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; flex-shrink: 0; font-weight: 700; }
-  .not-started .status-icon { background: var(--not-started); color: var(--muted); }
-  .in-progress .status-icon { background: var(--in-progress); color: #1a1d27; }
-  .done .status-icon { background: var(--done); color: #1a1d27; }
-  footer { margin-top: 2.5rem; text-align: center; font-size: 0.8rem; color: var(--muted); }
-  .error { color: #f59e0b; padding: 2rem; text-align: center; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    display: flex; flex-direction: column;
+    padding: 2.4vh 2.4vw;
+    font-size: calc(2.2vh * var(--s));
+  }
+  header { display: flex; justify-content: space-between; align-items: flex-end; gap: 3vw; margin-bottom: 2.4vh; flex: none; }
+  h1 { font-size: 4.6vh; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
+  h1 span { color: var(--lime); }
+  .deadline { color: var(--muted); font-size: 2.1vh; margin-top: 0.6vh; }
+  .deadline strong { color: var(--text); }
+
+  .overall { display: flex; align-items: center; gap: 1.6vw; min-width: 38vw; }
+  .overall .pct { font-size: 6.4vh; font-weight: 800; color: var(--lime); line-height: 1; min-width: 9vh; text-align: right; }
+  .overall .bar-wrap { flex: 1; }
+  .overall .bar-label { font-size: 1.9vh; color: var(--muted); margin-bottom: 0.8vh; }
+  .bar { height: 1.8vh; border-radius: 999px; background: var(--idle); overflow: hidden; display: flex; }
+  .bar .done { background: var(--lime); }
+  .bar .doing { background: var(--amber); }
+  .legend { display: flex; gap: 1.4vw; margin-top: 0.9vh; font-size: 1.7vh; color: var(--muted); }
+  .legend i { display: inline-block; width: 1.2vh; height: 1.2vh; border-radius: 50%; margin-right: 0.5vw; }
+
+  #grid {
+    flex: 1; min-height: 0;
+    display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+    gap: calc(1.6vh * var(--s)) calc(1.2vw * var(--s));
+    align-content: start;
+  }
+  .goal { background: var(--card); border: 1px solid var(--border); border-radius: 1.4vh; padding: calc(1.8vh * var(--s)) calc(1.4vw * var(--s)); }
+  .goal-head { display: flex; justify-content: space-between; align-items: baseline; gap: 1vw; margin-bottom: calc(1.2vh * var(--s)); }
+  .goal-title { font-weight: 700; font-size: 1.25em; line-height: 1.2; }
+  .tag { display: inline-block; font-size: 0.6em; font-weight: 700; background: rgba(166,239,255,.15); color: var(--blue); border-radius: 0.6vh; padding: 0.2vh 0.7vw; margin-left: 0.6vw; vertical-align: middle; }
+  .count { color: var(--muted); white-space: nowrap; font-size: 0.9em; }
+  .count strong { color: var(--text); }
+  .goal-bar { height: 0.7vh; border-radius: 999px; background: var(--idle); margin-bottom: calc(1.2vh * var(--s)); overflow: hidden; display: flex; }
+  .goal-bar .done { background: var(--lime); }
+  .goal-bar .doing { background: var(--amber); }
+  ul { list-style: none; display: flex; flex-direction: column; gap: calc(0.7vh * var(--s)); }
+  li { display: flex; gap: 0.8vw; align-items: flex-start; line-height: 1.25; padding: calc(0.7vh * var(--s)) calc(0.8vw * var(--s)); border-radius: 0.9vh; background: rgba(84,87,98,.35); color: #c9cbd2; }
+  li .ico { flex: none; width: 1.3em; height: 1.3em; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; font-weight: 800; background: var(--idle); color: #d8dae0; margin-top: 0.05em; }
+  li.doing { background: rgba(254,176,0,.14); color: var(--text); }
+  li.doing .ico { background: var(--amber); color: #26272B; }
+  li.done { background: rgba(190,224,52,.14); color: var(--text); }
+  li.done .ico { background: var(--lime); color: #26272B; }
+
+  footer { flex: none; margin-top: 1.2vh; text-align: right; font-size: 1.5vh; color: var(--muted); }
+  footer.stale { color: var(--amber); }
+  .error { color: var(--amber); text-align: center; padding: 8vh 0; font-size: 3vh; grid-column: 1 / -1; }
 </style>
 </head>
 <body>
 <header>
-  <h1>Teamets mal <span>hosten 2025</span></h1>
-  <div class="meta">Deadline: <strong>25 december 2025</strong><br>Uppdateras automatiskt var 60:e sekund</div>
-</header>
-<div class="progress-overview">
   <div>
-    <div class="label">Total progress</div>
-    <div class="big-number" id="overallPct">-</div>
+    <h1>Teamets mål <span>hösten 2026</span></h1>
+    <div class="deadline">Deadline <strong>15 december 2026</strong> · <span id="daysLeft"></span></div>
   </div>
-  <div class="progress-bar-wrap">
-    <div class="label">Delmal slutforda</div>
-    <div class="progress-bar-bg"><div class="progress-bar-fill" id="overallBar" style="width:0%"></div></div>
+  <div class="overall">
+    <div class="pct" id="pct">–</div>
+    <div class="bar-wrap">
+      <div class="bar-label">Delmål klara totalt</div>
+      <div class="bar"><div class="done" id="barDone"></div><div class="doing" id="barDoing"></div></div>
+      <div class="legend">
+        <span><i style="background:var(--idle)"></i>Ej påbörjat</span>
+        <span><i style="background:var(--amber)"></i>Pågår</span>
+        <span><i style="background:var(--lime)"></i>Klart</span>
+      </div>
+    </div>
   </div>
-  <div class="legend">
-    <div class="legend-item"><div class="legend-dot" style="background:#3a3d4a"></div> Ej paborjat</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div> Pagar</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#22c55e"></div> Klart</div>
-  </div>
-</div>
-<div class="grid" id="goalGrid"></div>
+</header>
+<div id="grid"></div>
 <footer id="footer"></footer>
+
 <script>
-var JSON_URL = "https://raw.githubusercontent.com/FredrikAsplund/Support-mal-dashboard/main/mal_data.json";
+var DEADLINE = new Date(2026, 11, 15, 23, 59, 59);
+var RAW_URL = "https://raw.githubusercontent.com/FredrikAsplund/Support-mal-dashboard/main/mal_data.json";
+var PAGES_URL = "mal_data.json";
+var DATA_REFRESH_MS = 5 * 60 * 1000;   // hämta ny data var 5:e minut
+var PAGE_RELOAD_MS = 60 * 60 * 1000;   // ladda om hela sidan varje timme (hämtar ny design)
+var params = new URLSearchParams(location.search);
+var lastData = null, lastOk = null;
 
+function esc(s) {
+  return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+  });
+}
+function fetchJson(url) {
+  return fetch(url + (url.indexOf("?") < 0 ? "?" : "&") + "t=" + Date.now(), { cache: "no-store" })
+    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); });
+}
 function loadData() {
-  return fetch(JSON_URL + "?t=" + Date.now())
-    .then(function(res) {
-      if (!res.ok) throw new Error("HTTP " + res.status);
-      return res.json();
-    })
-    .catch(function(e) { return null; });
+  if (params.get("src")) return fetchJson(params.get("src"));
+  return fetchJson(RAW_URL).catch(function () { return fetchJson(PAGES_URL); });
 }
-
 function statusClass(s) {
-  if (!s) return "not-started";
-  var sl = s.toLowerCase().trim();
-  if (sl === "klart") return "done";
-  if (sl === "pågår" || sl === "pagar") return "in-progress";
-  return "not-started";
+  var v = String(s || "").toLowerCase().trim();
+  if (/^(klart|klar|slutf|done|avklarad)/.test(v)) return "done";
+  if (/^(pågå|paga|pågå|påbörjad|in progress|igång)/.test(v) && v.indexOf("ej ") !== 0) return "doing";
+  return "idle";
+}
+function pick(row, names) {
+  for (var i = 0; i < names.length; i++) if (row[names[i]] != null && row[names[i]] !== "") return row[names[i]];
+  return "";
+}
+function group(data) {
+  var goals = {}, order = [];
+  data.forEach(function (row) {
+    var name = pick(row, ["Mål", "Mal", "mål", "mal"]);
+    if (!name) return;
+    if (!goals[name]) { goals[name] = { tag: "", subs: [] }; order.push(name); }
+    var tag = pick(row, ["Tag", "tag"]);
+    if (tag && !goals[name].tag) goals[name].tag = tag;
+    var text = pick(row, ["Delmål", "Delmal", "delmål", "delmal"]);
+    if (text) goals[name].subs.push({ text: text, cls: statusClass(pick(row, ["Status", "status"])) });
+  });
+  return order.map(function (n) { return { name: n, tag: goals[n].tag, subs: goals[n].subs }; });
+}
+function bars(done, doing, total) {
+  var d = total ? done / total * 100 : 0, p = total ? doing / total * 100 : 0;
+  return [d, p];
+}
+var ICON = { done: "✓", doing: "▶", idle: "○" };
+
+function render(data) {
+  var goals = group(data), total = 0, done = 0, doing = 0;
+  var html = goals.map(function (g) {
+    var gd = 0, gp = 0;
+    g.subs.forEach(function (s) { if (s.cls === "done") gd++; else if (s.cls === "doing") gp++; });
+    total += g.subs.length; done += gd; doing += gp;
+    var b = bars(gd, gp, g.subs.length);
+    return '<section class="goal"><div class="goal-head"><div class="goal-title">' + esc(g.name) +
+      (g.tag ? '<span class="tag">' + esc(g.tag) + '</span>' : '') +
+      '</div><div class="count"><strong>' + gd + '/' + g.subs.length + '</strong> klara</div></div>' +
+      '<div class="goal-bar"><div class="done" style="width:' + b[0] + '%"></div><div class="doing" style="width:' + b[1] + '%"></div></div><ul>' +
+      g.subs.map(function (s) { return '<li class="' + s.cls + '"><span class="ico">' + ICON[s.cls] + '</span><span>' + esc(s.text) + '</span></li>'; }).join("") +
+      '</ul></section>';
+  }).join("");
+  document.getElementById("grid").innerHTML = html;
+  var b = bars(done, doing, total);
+  document.getElementById("pct").textContent = (total ? Math.round(done / total * 100) : 0) + "%";
+  document.getElementById("barDone").style.width = b[0] + "%";
+  document.getElementById("barDoing").style.width = b[1] + "%";
+  fit(goals.length);
 }
 
-function statusIcon(s) {
-  var c = statusClass(s);
-  if (c === "done") return "&#10003;";
-  if (c === "in-progress") return "&#9654;";
-  return "&#9675;";
-}
-
-function groupByGoal(data) {
-  var goals = {};
-  for (var i = 0; i < data.length; i++) {
-    var row = data[i];
-    var name = row.Mal || row.mal || row["Mål"] || "";
-    var tag = row.Tag || row.tag || "";
-    var delmal = row.Delmal || row.delmal || row["Delmål"] || "";
-    var status = row.Status || row.status || "Ej påbörjat";
-    if (!goals[name]) goals[name] = { tag: tag, subgoals: [] };
-    goals[name].subgoals.push({ text: delmal, status: status });
+// Välj antal kolumner efter antal mål och krymp tills allt ryms utan scroll.
+function fit(n) {
+  var grid = document.getElementById("grid"), root = document.documentElement;
+  var cols = n <= 2 ? n || 1 : n <= 4 ? 2 : n <= 9 ? 3 : 4;
+  root.style.setProperty("--cols", cols);
+  var s = 1.7;
+  for (; s > 0.35; s -= 0.025) {
+    root.style.setProperty("--s", s);
+    if (grid.scrollHeight <= grid.clientHeight + 1) break;
   }
-  return goals;
 }
-
-function renderGoals(data) {
-  var goals = groupByGoal(data);
-  var grid = document.getElementById("goalGrid");
-  grid.innerHTML = "";
-  var totalSubs = 0, doneSubs = 0;
-  var names = Object.keys(goals);
-  for (var i = 0; i < names.length; i++) {
-    var name = names[i];
-    var goalData = goals[name];
-    var done = 0;
-    for (var j = 0; j < goalData.subgoals.length; j++) {
-      if (statusClass(goalData.subgoals[j].status) === "done") done++;
+function updateDays() {
+  var days = Math.ceil((DEADLINE - new Date()) / 86400000);
+  document.getElementById("daysLeft").textContent =
+    days > 1 ? days + " dagar kvar" : days === 1 ? "1 dag kvar" : days === 0 ? "sista dagen!" : "deadline passerad";
+}
+function refresh() {
+  loadData().then(function (data) {
+    if (!Array.isArray(data) || !data.length) throw new Error("tom data");
+    lastData = data; lastOk = new Date();
+    render(data);
+    var f = document.getElementById("footer"); f.className = "";
+    f.textContent = "Uppdaterad " + lastOk.toLocaleString("sv-SE", { dateStyle: "short", timeStyle: "short" });
+  }).catch(function () {
+    var f = document.getElementById("footer");
+    if (lastData) {
+      f.className = "stale";
+      f.textContent = "Kunde inte hämta ny data – visar data från " + lastOk.toLocaleTimeString("sv-SE", { timeStyle: "short" });
+    } else {
+      document.getElementById("grid").innerHTML = '<p class="error">Kunde inte ladda data just nu. Försöker igen strax.</p>';
+      setTimeout(refresh, 30000);
     }
-    var total = goalData.subgoals.length;
-    totalSubs += total;
-    doneSubs += done;
-    var card = document.createElement("div");
-    card.className = "goal-card";
-    var tagHTML = goalData.tag ? '<span class="tag">' + goalData.tag + '</span>' : "";
-    var subgoalHTML = "";
-    for (var k = 0; k < goalData.subgoals.length; k++) {
-      var sc = statusClass(goalData.subgoals[k].status);
-      var si = statusIcon(goalData.subgoals[k].status);
-      subgoalHTML += '<li class="subgoal ' + sc + '"><div class="status-icon">' + si + '</div><span>' + goalData.subgoals[k].text + '</span></li>';
-    }
-    card.innerHTML =
-      '<div class="goal-header">' +
-        '<div class="goal-title">' + name + tagHTML + '</div>' +
-        '<div class="goal-progress-text"><strong>' + done + '/' + total + '</strong> klara</div>' +
-      '</div>' +
-      '<ul class="subgoal-list">' + subgoalHTML + '</ul>';
-    grid.appendChild(card);
-  }
-  var pct = totalSubs > 0 ? Math.round((doneSubs / totalSubs) * 100) : 0;
-  document.getElementById("overallPct").textContent = pct + "%";
-  document.getElementById("overallBar").style.width = pct + "%";
-  var now = new Date().toLocaleString("sv-SE");
-  document.getElementById("footer").textContent = "Senast uppdaterad: " + now + " - Sidan laddas om automatiskt var 60:e sekund";
+  });
 }
-
-loadData().then(function(data) {
-  if (data && Array.isArray(data) && data.length > 0) {
-    renderGoals(data);
-  } else {
-    document.getElementById("goalGrid").innerHTML = "<p class='error'>Kunde inte ladda data. Kontrollera att mal_data.json finns i repositoryt.</p>";
-    document.getElementById("overallPct").textContent = "?";
-  }
-});
+window.addEventListener("resize", function () { if (lastData) render(lastData); });
+updateDays(); setInterval(updateDays, 3600000);
+refresh(); setInterval(refresh, DATA_REFRESH_MS);
+setTimeout(function () { location.reload(); }, PAGE_RELOAD_MS);
 </script>
 </body>
 </html>
