@@ -6,8 +6,8 @@
 <title>Teamets mål hösten 2026</title>
 <style>
   :root {
-    --bg: #26272B; --card: #313131; --border: #44464d; --text: #ffffff; --muted: #a3a5ad;
-    --lime: #BEE034; --amber: #FEB000; --pink: #FFA6EA; --blue: #A6EFFF; --idle: #545762;
+    --bg: #0f1117; --card: #1a1d27; --border: #2a2d3a; --text: #e8eaf0; --muted: #6b7080;
+    --lime: #22c55e; --amber: #f59e0b; --accent: #6366f1; --idle: #3a3d4a;
     --s: 1; /* skalfaktor, justeras av skriptet så att allt ryms utan scroll */
     --cols: 2;
   }
@@ -22,12 +22,12 @@
   }
   header { display: flex; justify-content: space-between; align-items: flex-end; gap: 3vw; margin-bottom: 2.4vh; flex: none; }
   h1 { font-size: 4.6vh; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
-  h1 span { color: var(--lime); }
+  h1 span { color: var(--accent); }
   .deadline { color: var(--muted); font-size: 2.1vh; margin-top: 0.6vh; }
   .deadline strong { color: var(--text); }
 
   .overall { display: flex; align-items: center; gap: 1.6vw; min-width: 38vw; }
-  .overall .pct { font-size: 6.4vh; font-weight: 800; color: var(--lime); line-height: 1; min-width: 9vh; text-align: right; }
+  .overall .pct { font-size: 6.4vh; font-weight: 800; color: var(--accent); line-height: 1; min-width: 9vh; text-align: right; }
   .overall .bar-wrap { flex: 1; }
   .overall .bar-label { font-size: 1.9vh; color: var(--muted); margin-bottom: 0.8vh; }
   .bar { height: 1.8vh; border-radius: 999px; background: var(--idle); overflow: hidden; display: flex; }
@@ -46,17 +46,17 @@
   .goal { background: var(--card); border: 1px solid var(--border); border-radius: 1.4vh; padding: calc(1.8vh * var(--s)) calc(1.4vw * var(--s)); }
   .goal-head { display: flex; justify-content: space-between; align-items: baseline; gap: 1vw; margin-bottom: calc(1.2vh * var(--s)); }
   .goal-title { font-weight: 700; font-size: 1.25em; line-height: 1.2; }
-  .tag { display: inline-block; font-size: 0.6em; font-weight: 700; background: rgba(166,239,255,.15); color: var(--blue); border-radius: 0.6vh; padding: 0.2vh 0.7vw; margin-left: 0.6vw; vertical-align: middle; }
+  .tag { display: inline-block; font-size: 0.6em; font-weight: 700; background: rgba(99,102,241,.15); color: var(--accent); border-radius: 0.6vh; padding: 0.2vh 0.7vw; margin-left: 0.6vw; vertical-align: middle; }
   .count { color: var(--muted); white-space: nowrap; font-size: 0.9em; }
   .count strong { color: var(--text); }
   .goal-bar { height: 0.7vh; border-radius: 999px; background: var(--idle); margin-bottom: calc(1.2vh * var(--s)); overflow: hidden; display: flex; }
   ul { list-style: none; display: flex; flex-direction: column; gap: calc(0.7vh * var(--s)); }
-  li { display: flex; gap: 0.8vw; align-items: flex-start; line-height: 1.25; padding: calc(0.7vh * var(--s)) calc(0.8vw * var(--s)); border-radius: 0.9vh; background: rgba(84,87,98,.35); color: #c9cbd2; }
-  li .ico { flex: none; width: 1.3em; height: 1.3em; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; font-weight: 800; background: var(--idle); color: #d8dae0; margin-top: 0.05em; }
-  li.doing { background: rgba(254,176,0,.14); color: var(--text); }
-  li.doing .ico { background: var(--amber); color: #26272B; }
-  li.done { background: rgba(190,224,52,.14); color: var(--text); }
-  li.done .ico { background: var(--lime); color: #26272B; }
+  li { display: flex; gap: 0.8vw; align-items: flex-start; line-height: 1.25; padding: calc(0.7vh * var(--s)) calc(0.8vw * var(--s)); border-radius: 0.9vh; background: rgba(58,61,74,.4); color: #9a9db0; }
+  li .ico { flex: none; width: 1.3em; height: 1.3em; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; font-weight: 800; background: var(--idle); color: var(--muted); margin-top: 0.05em; }
+  li.doing { background: rgba(245,158,11,.12); box-shadow: inset 0 0 0 1px rgba(245,158,11,.25); color: var(--text); }
+  li.doing .ico { background: var(--amber); color: #1a1d27; }
+  li.done { background: rgba(34,197,94,.12); box-shadow: inset 0 0 0 1px rgba(34,197,94,.25); color: var(--text); }
+  li.done .ico { background: var(--lime); color: #1a1d27; }
 
   footer { flex: none; margin-top: 1.2vh; text-align: right; font-size: 1.5vh; color: var(--muted); }
   footer.stale { color: var(--amber); }
