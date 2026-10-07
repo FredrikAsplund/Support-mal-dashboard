@@ -43,6 +43,10 @@
     gap: calc(1.6vh * var(--s)) calc(1.2vw * var(--s));
     align-content: start;
   }
+  .cell { min-width: 0; display: flex; flex-direction: column; gap: calc(1.6vh * var(--s)); }
+  .cell > .goal:last-child { flex: 1 1 auto; }
+  #grid.measuring .cell { align-self: start; }
+  #grid.measuring .cell > .goal:last-child { flex: none; }
   .goal { background: var(--card); border: 1px solid var(--border); border-radius: 1.4vh; padding: calc(1.8vh * var(--s)) calc(1.4vw * var(--s)); }
   .goal-head { display: flex; justify-content: space-between; align-items: baseline; gap: 1vw; margin-bottom: calc(1.2vh * var(--s)); }
   .goal-title { font-weight: 700; font-size: 1.25em; line-height: 1.2; }
@@ -142,7 +146,7 @@ var ICON = { done: "✓", doing: "▶", idle: "○" };
 
 function render(data) {
   var goals = group(data), total = 0, done = 0, doing = 0;
-  var html = goals.map(function (g) {
+  var cards = goals.map(function (g) {
     var gd = 0, gp = 0;
     g.subs.forEach(function (s) { if (s.cls === "done") gd++; else if (s.cls === "doing") gp++; });
     total += g.subs.length; done += gd; doing += gp;
@@ -153,23 +157,47 @@ function render(data) {
       '<div class="goal-bar"><div class="fill ' + b.cls + '" style="width:' + b.w + '%"></div></div><ul>' +
       g.subs.map(function (s) { return '<li class="' + s.cls + '"><span class="ico">' + ICON[s.cls] + '</span><span>' + esc(s.text) + '</span></li>'; }).join("") +
       '</ul></section>';
-  }).join("");
-  document.getElementById("grid").innerHTML = html;
+  });
   var b = barState(done, doing, total);
   document.getElementById("pct").textContent = (total ? Math.round(done / total * 100) : 0) + "%";
   var fill = document.getElementById("barFill");
   fill.className = "fill " + b.cls; fill.style.width = b.w + "%";
-  fit(goals.length);
+  fit(cards);
+}
+
+// Rutnät där alla kort på samma rad slutar på samma höjd. Mål som inte fyller en hel
+// sista rad staplas under kortet i sista hela raden som har mest ledigt utrymme.
+function layout(cards, cols) {
+  var grid = document.getElementById("grid"), cells = [];
+  var full = cards.length - cards.length % cols;
+  if (full === 0) full = cards.length;
+  grid.innerHTML = "";
+  for (var i = 0; i < full; i++) {
+    var cell = document.createElement("div");
+    cell.className = "cell";
+    cell.innerHTML = cards[i];
+    grid.appendChild(cell);
+    cells.push(cell);
+  }
+  var lastRow = cells.slice(Math.max(0, full - cols));
+  grid.classList.add("measuring");
+  for (var j = full; j < cards.length; j++) {
+    var target = lastRow[0];
+    lastRow.forEach(function (c) { if (c.offsetHeight < target.offsetHeight) target = c; });
+    target.insertAdjacentHTML("beforeend", cards[j]);
+  }
+  grid.classList.remove("measuring");
 }
 
 // Välj antal kolumner efter antal mål och krymp tills allt ryms utan scroll.
-function fit(n) {
-  var grid = document.getElementById("grid"), root = document.documentElement;
+function fit(cards) {
+  var n = cards.length, grid = document.getElementById("grid"), root = document.documentElement;
   var cols = n <= 2 ? n || 1 : n <= 4 ? 2 : n <= 9 ? 3 : 4;
   root.style.setProperty("--cols", cols);
   var s = 1.7;
   for (; s > 0.35; s -= 0.025) {
     root.style.setProperty("--s", s);
+    layout(cards, cols);
     if (grid.scrollHeight <= grid.clientHeight + 1) break;
   }
 }
