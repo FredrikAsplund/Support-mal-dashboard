@@ -76,7 +76,7 @@
   <div class="overall">
     <div class="pct" id="pct">–</div>
     <div class="bar-wrap">
-      <div class="bar-label">Delmål klara totalt</div>
+      <div class="bar-label" id="barLabel">Framsteg totalt</div>
       <div class="bar"><div class="fill" id="barFill"></div></div>
       <div class="legend">
         <span><i style="background:var(--idle)"></i>Ej påbörjat</span>
@@ -95,6 +95,7 @@ var RAW_URL = "https://raw.githubusercontent.com/FredrikAsplund/Support-mal-dash
 var PAGES_URL = "mal_data.json";
 var DATA_REFRESH_MS = 5 * 60 * 1000;   // hämta ny data var 5:e minut
 var PAGE_RELOAD_MS = 60 * 60 * 1000;   // ladda om hela sidan varje timme (hämtar ny design)
+var DOING_WEIGHT = 0.5;                // ett pågående delmål räknas som så här stor del av ett klart
 var params = new URLSearchParams(location.search);
 var lastData = null, lastOk = null;
 
@@ -134,13 +135,15 @@ function group(data) {
   });
   return order.map(function (n) { return { name: n, tag: goals[n].tag, subs: goals[n].subs }; });
 }
-// En stapel med en färg: grå = ej påbörjat, orange = pågår, grön från 80 % klart.
+// Framsteg i procent där pågående delmål räknas med DOING_WEIGHT.
+function progress(done, doing, total) {
+  return total ? (done + doing * DOING_WEIGHT) / total * 100 : 0;
+}
+// En stapel med en färg: grå = ej påbörjat, orange = pågår, grön från 80 % framsteg.
 function barState(done, doing, total) {
-  var pct = total ? done / total * 100 : 0;
-  var started = done > 0 || doing > 0;
-  var cls = pct >= 80 ? "done" : started ? "doing" : "idle";
-  var w = pct > 0 ? pct : started ? 4 : 0; // liten orange start när inget är klart men något pågår
-  return { w: w, cls: cls };
+  var pct = progress(done, doing, total);
+  var cls = pct >= 80 ? "done" : pct > 0 ? "doing" : "idle";
+  return { w: pct, cls: cls };
 }
 var ICON = { done: "✓", doing: "▶", idle: "○" };
 
@@ -159,7 +162,9 @@ function render(data) {
       '</ul></section>';
   });
   var b = barState(done, doing, total);
-  document.getElementById("pct").textContent = (total ? Math.round(done / total * 100) : 0) + "%";
+  document.getElementById("pct").textContent = Math.round(b.w) + "%";
+  document.getElementById("barLabel").textContent =
+    "Framsteg totalt · pågår räknas som " + Math.round(DOING_WEIGHT * 100) + " %";
   var fill = document.getElementById("barFill");
   fill.className = "fill " + b.cls; fill.style.width = b.w + "%";
   fit(cards);
